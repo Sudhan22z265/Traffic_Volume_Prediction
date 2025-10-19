@@ -6,22 +6,32 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem("auth:user");
+    // Use tvp_auth for persistent login
+    const raw = localStorage.getItem("tvp_auth");
     if (raw) {
-      try { setUser(JSON.parse(raw)); } catch {}
+      try {
+        const auth = JSON.parse(raw);
+        if (auth.authenticated && auth.email) {
+          setUser({ email: auth.email });
+        }
+      } catch {}
     }
   }, []);
 
-  useEffect(() => {
-    if (user) localStorage.setItem("auth:user", JSON.stringify(user));
-    else localStorage.removeItem("auth:user");
-  }, [user]);
+  const login = (email) => {
+    setUser({ email, authenticated: true });
+    localStorage.setItem("tvp_auth", JSON.stringify({ email, authenticated: true }));
+  };
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("tvp_auth");
+  };
 
   const value = useMemo(() => ({
     user,
-    isAuthenticated: !!user,
-    login: (email) => setUser({ email }),
-    logout: () => setUser(null)
+    isAuthenticated: !!user && user.authenticated,
+    login,
+    logout
   }), [user]);
 
   return (

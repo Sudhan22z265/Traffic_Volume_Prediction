@@ -20,15 +20,16 @@ function Login() {
     e.preventDefault();
     setSubmitting(true);
     setMessage("");
-    try {
-      // Placeholder auth request
-      await new Promise((res) => setTimeout(res, 600));
+    const staticEmail = "tvp@gmail.com";
+    const staticPassword = "tvp";
+    await new Promise((res) => setTimeout(res, 600));
+    if (form.email === staticEmail && form.password === staticPassword) {
+      // Store in localStorage for persistent auth
+      localStorage.setItem("tvp_auth", JSON.stringify({ email: staticEmail, authenticated: true }));
       login(form.email);
-      const redirectTo = location.state?.from?.pathname || "/";
-      navigate(redirectTo, { replace: true });
-      return;
-    } catch (err) {
-      setMessage("Login failed");
+  navigate("/", { replace: true });
+    } else {
+      setMessage("Invalid email or password");
     }
     setSubmitting(false);
   };
